@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="en" style="color-scheme:light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Denial Defender — PA Appeal Writer</title>
+<meta name="product" content="Denial Defender">
+<meta name="version" content="20260626-1541">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --violet:#6C63D5;--violet-light:#F0EFFD;--violet-mid:#C4C0F0;--violet-dark:#3D3799;--violet-hover:#5A52C0;
+  --amber:#FEF6E7;--amber-border:#F0B429;--amber-text:#7A4B00;
+  --coral-bg:#FEF0EC;--coral-border:#E07A5F;--coral-text:#5C1F0A;
+  --blue-bg:#EBF4FF;--blue-border:#5BA3E0;--blue-text:#0A3458;
+  --ink:#18181B;--ink-2:#52525B;--ink-3:#A1A1AA;
+  --surface:#FFFFFF;--surface-2:#FAFAFA;--surface-3:#F4F3FC;
+  --border:rgba(0,0,0,0.08);--border-2:rgba(0,0,0,0.13);
+  --r:8px;--rl:12px;--rxl:16px;
+}
+body{font-family:'DM Sans',system-ui,sans-serif;background:var(--surface-2);color:var(--ink);min-height:100vh;font-size:16px;line-height:1.5}
+
+/* topbar */
+.topbar{background:var(--surface);border-bottom:0.5px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10}
+.logo{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);letter-spacing:-0.3px;text-decoration:none}
+.logo-a{color:var(--violet)}
+.badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--violet-light);color:var(--violet-dark);border:0.5px solid var(--violet-mid)}
+
+.wrap{max-width:680px;margin:0 auto;padding:24px 16px 80px}
+
+/* progress */
+.progress{display:flex;align-items:center;justify-content:center;margin-bottom:28px}
+.pc{width:28px;height:28px;border-radius:50%;border:1.5px solid var(--border-2);background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--ink-3);transition:all .2s;flex-shrink:0}
+.pc.active{background:var(--violet);border-color:var(--violet);color:#fff}
+.pc.done{background:var(--violet-light);border-color:var(--violet-mid);color:var(--violet-dark)}
+.pl{font-size:11px;font-weight:500;color:var(--ink-3);margin-left:6px;white-space:nowrap}
+.pl.active{color:var(--violet)}.pl.done{color:var(--ink-2)}
+.pline{width:32px;height:1px;background:var(--border);margin:0 6px;flex-shrink:0}
+.pline.done{background:var(--violet-mid)}
+@media(max-width:480px){.pl{display:none}.pline{width:20px}}
+
+/* cards */
+.card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rxl);padding:24px 20px;margin-bottom:16px}
+.slabel{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:10px}
+.stitle{font-size:20px;font-weight:500;color:var(--ink);margin-bottom:4px;line-height:1.2}
+.ssub{font-size:14px;color:var(--ink-2);margin-bottom:20px;line-height:1.5}
+
+/* upload zone */
+.upload-zone{border:1.5px dashed var(--border-2);border-radius:var(--rl);padding:28px 20px;text-align:center;cursor:pointer;transition:background .15s,border-color .15s;background:var(--surface-2);margin-bottom:10px;position:relative}
+.upload-zone:hover{background:var(--surface-3);border-color:var(--violet)}
+.upload-zone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.uz-icon{font-size:26px;color:var(--ink-3);margin-bottom:8px}
+.uz-main{font-size:15px;font-weight:500;color:var(--ink);margin-bottom:3px}
+.uz-sub{font-size:13px;color:var(--ink-3)}
+
+.or-div{display:flex;align-items:center;gap:12px;color:var(--ink-3);font-size:12px;margin:14px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:0.5px;background:var(--border)}
+
+/* paste zone — clickable like upload */
+.paste-zone{border:1.5px dashed var(--border-2);border-radius:var(--rl);padding:16px;background:var(--surface-2);cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:4px}
+.paste-zone:hover{background:var(--surface-3);border-color:var(--violet)}
+.paste-zone textarea{border:none;background:transparent;cursor:pointer;resize:none;width:100%;font-size:14px;color:var(--ink);line-height:1.5;outline:none;pointer-events:none}
+.paste-zone.active{cursor:default;border-color:var(--violet-mid)}
+.paste-zone.active textarea{cursor:text;pointer-events:auto}
+.paste-zone.filled{background:#F7F6FE;border-color:var(--violet-mid)}
+.paste-zone.filled textarea{color:var(--ink-2);font-size:12px}
+
+/* file pill */
+.fpill{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r);background:var(--violet-light);border:0.5px solid var(--violet-mid);margin-bottom:14px}
+.fpill-icon{color:var(--violet-dark);flex-shrink:0}
+.fpill-name{font-size:13px;font-weight:500;color:var(--violet-dark);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fpill-remove{color:var(--violet-dark);cursor:pointer;background:none;border:none;padding:0;line-height:1;flex-shrink:0}
+
+/* extracting */
+.extracting{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:var(--r);background:var(--violet-light);border:0.5px solid var(--violet-mid);margin-bottom:14px;font-size:13px;color:var(--violet-dark);font-weight:500}
+.mini-spin{width:16px;height:16px;border:2px solid var(--violet-mid);border-top-color:var(--violet);border-radius:50%;animation:spin .7s linear infinite;flex-shrink:0}
+
+/* autofill banner */
+.autofill-banner{display:flex;align-items:flex-start;gap:10px;padding:11px 14px;border-radius:var(--r);background:var(--violet-light);border:0.5px solid var(--violet-mid);margin-bottom:16px;font-size:13px;color:var(--violet-dark);line-height:1.45}
+
+/* fields */
+.field{margin-bottom:14px}
+.flabel{display:block;font-size:13px;font-weight:500;color:var(--ink-2);margin-bottom:5px}
+.flabel .req{color:#E07A3A;margin-left:2px}
+.fhint{font-size:12px;color:var(--ink-3);margin-top:4px}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+input[type=text],select,textarea{width:100%;border:0.5px solid var(--border-2);border-radius:var(--r);background:var(--surface);color:var(--ink);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;padding:10px 12px;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none}
+input[type=text]:focus,select:focus,textarea:focus{outline:none;border-color:var(--violet);box-shadow:0 0 0 3px rgba(108,99,213,.12)}
+input[type=text],select{height:46px}
+input.autofilled,textarea.autofilled{background:#F7F6FE;border-color:var(--violet-mid)}
+select.autofilled{background-color:#F7F6FE;border-color:var(--violet-mid)}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:32px}
+textarea{resize:vertical;min-height:85px;line-height:1.5}
+
+/* buttons */
+.btn-primary{width:100%;height:50px;background:var(--violet);color:#fff;border:none;border-radius:var(--r);font-family:'DM Sans',system-ui,sans-serif;font-size:15px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:background .15s,transform .1s;margin-top:6px}
+.btn-primary:hover{background:var(--violet-hover)}
+.btn-primary:active{transform:scale(.98)}
+.btn-primary:disabled{background:var(--ink-3);cursor:not-allowed}
+.btn-secondary{width:100%;height:44px;background:var(--surface);color:var(--ink-2);border:0.5px solid var(--border-2);border-radius:var(--r);font-family:'DM Sans',system-ui,sans-serif;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:background .1s;margin-top:8px}
+.btn-secondary:hover{background:var(--surface-2)}
+
+/* generating */
+.gen-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rxl);padding:40px 20px;text-align:center}
+.spinner{width:40px;height:40px;border:2.5px solid var(--violet-light);border-top-color:var(--violet);border-radius:50%;margin:0 auto 20px;animation:spin .75s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.gen-title{font-size:17px;font-weight:500;margin-bottom:6px}
+.gen-sub{font-size:14px;color:var(--ink-2);margin-bottom:24px}
+.gen-steps{text-align:left;max-width:300px;margin:0 auto}
+.gstep{display:flex;align-items:center;gap:10px;padding:9px 0;font-size:13px;color:var(--ink-3);border-bottom:0.5px solid var(--border)}
+.gstep:last-child{border-bottom:none}
+.gstep.s-active{color:var(--ink);font-weight:500}
+.gstep.s-done{color:var(--ink-2)}
+.si{width:16px;height:16px;flex-shrink:0}
+.si-done,.si-active{color:var(--violet)}
+.si-pending{color:var(--border-2)}
+
+/* result */
+.result-card{background:var(--surface);border:0.5px solid var(--border);border-radius:var(--rxl);overflow:hidden}
+.result-hdr{padding:16px 20px;border-bottom:0.5px solid var(--border);background:var(--surface-2)}
+.d-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px}
+.d-label{font-size:12px;color:var(--ink-3)}
+.dchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:3px 10px 3px 7px;border-radius:20px}
+.chip-step{background:var(--amber);color:var(--amber-text);border:0.5px solid var(--amber-border)}
+.chip-med{background:var(--coral-bg);color:var(--coral-text);border:0.5px solid var(--coral-border)}
+.chip-np{background:var(--blue-bg);color:var(--blue-text);border:0.5px solid var(--blue-border)}
+.cdot{width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.7}
+.r-meta{font-size:13px;color:var(--ink-2)}
+.r-meta strong{font-weight:500;color:var(--ink)}
+.letter-out{padding:20px;font-size:13.5px;line-height:1.8;color:var(--ink);white-space:pre-wrap;border-bottom:0.5px solid var(--border);min-height:200px;font-family:'DM Sans',system-ui,sans-serif}
+.act-bar{padding:12px 16px;display:flex;gap:10px;flex-wrap:wrap}
+.act-btn{flex:1;min-width:80px;height:42px;background:var(--surface);color:var(--ink-2);border:0.5px solid var(--border-2);border-radius:var(--r);font-family:'DM Sans',system-ui,sans-serif;font-size:13px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:background .1s}
+.act-btn:hover{background:var(--surface-2)}
+.act-btn.act-go{background:var(--violet);color:#fff;border-color:var(--violet)}
+.act-btn.act-go:hover{background:var(--violet-hover)}
+.act-btn svg{width:15px;height:15px;flex-shrink:0}
+.start-over{text-align:center;margin-top:20px}
+.start-over button{background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink-3);text-decoration:underline;padding:0}
+
+/* error */
+.err{background:#FEF2F2;border:0.5px solid #FECACA;border-radius:var(--r);padding:11px 14px;font-size:13px;color:#7F1D1D;margin-bottom:14px;display:none}
+
+/* toast */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:500;opacity:0;transition:opacity .2s;pointer-events:none;z-index:100;white-space:nowrap}
+.toast.show{opacity:1}
+.hidden{display:none!important}
+svg.ico{width:18px;height:18px;flex-shrink:0}
+
+/* ── Scenario picker modal ── */
+.modal-bg{position:fixed;inset:0;background:rgba(24,24,27,0.5);display:flex;align-items:flex-end;justify-content:center;z-index:50;padding:0}
+@media(min-width:500px){.modal-bg{align-items:center;padding:16px}}
+.modal-sheet{background:var(--surface);border-radius:20px 20px 0 0;padding:24px 20px 36px;width:100%;max-width:500px}
+@media(min-width:500px){.modal-sheet{border-radius:var(--rxl);padding:28px 24px}}
+.modal-handle{width:36px;height:4px;background:var(--border-2);border-radius:2px;margin:0 auto 20px}
+@media(min-width:500px){.modal-handle{display:none}}
+.modal-title{font-size:17px;font-weight:500;color:var(--ink);margin-bottom:4px}
+.modal-sub{font-size:13px;color:var(--ink-2);margin-bottom:20px;line-height:1.5}
+.scenario-card{display:flex;align-items:flex-start;gap:14px;padding:14px;border:1.5px solid var(--border);border-radius:var(--rl);cursor:pointer;transition:border-color .15s,background .15s;margin-bottom:10px;background:var(--surface);text-align:left;width:100%}
+.scenario-card:hover{border-color:var(--violet-mid);background:var(--violet-light)}
+.scenario-card:last-child{margin-bottom:0}
+.sc-chip{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:600;padding:3px 9px 3px 6px;border-radius:20px;white-space:nowrap;flex-shrink:0;margin-top:2px}
+.sc-body{}
+.sc-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px}
+.sc-detail{font-size:12px;color:var(--ink-3);line-height:1.4}
+.modal-cancel{width:100%;margin-top:14px;height:40px;background:none;border:none;color:var(--ink-3);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer}
+
+@media(min-width:768px){.wrap{padding:32px 24px 80px}.card{padding:28px 24px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="logo" href="#">Denial<span class="logo-a"> Defender</span></a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <span class="badge">Rheumatology</span>
+    <span style="font-size:11px;font-weight:500;padding:3px 10px;border-radius:20px;background:var(--amber);color:var(--amber-text);border:0.5px solid var(--amber-border)">Prototype</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <!-- Progress -->
+  <div class="progress" id="prog">
+    <div style="display:flex;align-items:center">
+      <div class="pc active" id="pc1">1</div>
+      <span class="pl active" id="pl1">Upload denial</span>
+    </div>
+    <div class="pline" id="pline1"></div>
+    <div style="display:flex;align-items:center">
+      <div class="pc" id="pc2">2</div>
+      <span class="pl" id="pl2">Confirm details</span>
+    </div>
+    <div class="pline" id="pline2"></div>
+    <div style="display:flex;align-items:center">
+      <div class="pc" id="pc3">3</div>
+      <span class="pl" id="pl3">Appeal letter</span>
+    </div>
+  </div>
+
+  <!-- STEP 1 -->
+  <div id="s1">
+    <div class="card">
+      <div class="slabel">Step 1 of 2</div>
+      <div class="stitle">Upload your denial letter</div>
+      <div class="ssub">Upload the PDF or photo, or tap the paste area to load a sample denial. We'll read it and auto-fill the details.</div>
+
+      <div id="uz-wrap">
+        <div class="upload-zone" id="upload-zone-click">
+          <input type="file" id="file-in" accept=".pdf,.jpg,.jpeg,.png,.gif,.webp">
+          <div class="uz-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          </div>
+          <div class="uz-main">Upload denial letter</div>
+          <div class="uz-sub">PDF, photo, or screenshot — tap to browse</div>
+        </div>
+      </div>
+
+      <div id="fpill-wrap" class="hidden">
+        <div class="fpill">
+          <svg class="fpill-icon ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="fpill-name" id="fname"></span>
+          <button class="fpill-remove" id="fremove" aria-label="Remove">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div id="extracting-wrap" class="hidden">
+        <div class="extracting">
+          <div class="mini-spin"></div>
+          <span id="extracting-msg">Reading your denial letter…</span>
+        </div>
+      </div>
+
+      <div class="or-div">or paste text</div>
+
+      <!-- Paste zone — tap to open picker -->
+      <div class="paste-zone" id="paste-zone">
+        <textarea id="paste-text" rows="5" placeholder="Tap here to load a sample denial letter…" readonly></textarea>
+      </div>
+
+      <div class="err" id="s1-err">Please upload a denial letter or select a sample to continue.</div>
+
+      <button class="btn-primary" id="s1-next" style="margin-top:16px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+        Continue
+      </button>
+    </div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div id="s2" class="hidden">
+    <div class="card">
+      <div class="slabel">Step 2 of 2</div>
+      <div class="stitle">Confirm the details</div>
+      <div class="ssub">We've read your denial letter and pre-filled what we found. Review and fill any gaps.</div>
+
+      <div id="autofill-banner" class="hidden">
+        <div class="autofill-banner">
+          <svg style="flex-shrink:0;margin-top:1px;color:var(--violet-dark)" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+          <span>Fields highlighted in purple were auto-filled from your denial letter. Review for accuracy before generating.</span>
+        </div>
+      </div>
+
+      <div id="s2-fpill" class="hidden">
+        <div class="fpill" style="margin-bottom:18px">
+          <svg class="fpill-icon ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+          <span class="fpill-name" id="s2-fname"></span>
+        </div>
+      </div>
+
+      <div class="frow">
+        <div class="field"><label class="flabel" for="f-drug">Drug name<span class="req">*</span></label><input type="text" id="f-drug" placeholder="e.g. Rinvoq 15mg"></div>
+        <div class="field"><label class="flabel" for="f-dx">Diagnosis<span class="req">*</span></label><input type="text" id="f-dx" placeholder="e.g. Rheumatoid arthritis"></div>
+      </div>
+      <div class="frow">
+        <div class="field">
+          <label class="flabel" for="f-payer">Insurance payer<span class="req">*</span></label>
+          <select id="f-payer">
+            <option value="">Select payer…</option>
+            <option>UnitedHealthcare</option><option>Cigna</option><option>Aetna</option>
+            <option>BCBS</option><option>Humana</option><option>Molina</option>
+            <option>Centene</option><option>Medicare Advantage</option><option>Medicaid</option><option>Other</option>
+          </select>
+        </div>
+        <div class="field"><label class="flabel" for="f-icd">ICD / CPT codes</label><input type="text" id="f-icd" placeholder="e.g. M05.79 / J0717"></div>
+      </div>
+      <div class="frow">
+        <div class="field"><label class="flabel" for="f-member">Member / Patient ID</label><input type="text" id="f-member" placeholder="e.g. UHC8847291"></div>
+        <div class="field">
+          <label class="flabel" for="f-state">Patient's state</label>
+          <select id="f-state">
+            <option value="">Select state…</option>
+            <option>Alabama</option><option>Alaska</option><option>Arizona</option><option>Arkansas</option>
+            <option>California</option><option>Colorado</option><option>Connecticut</option><option>Delaware</option>
+            <option>Florida</option><option>Georgia</option><option>Hawaii</option><option>Idaho</option>
+            <option>Illinois</option><option>Indiana</option><option>Iowa</option><option>Kansas</option>
+            <option>Kentucky</option><option>Louisiana</option><option>Maine</option><option>Maryland</option>
+            <option>Massachusetts</option><option>Michigan</option><option>Minnesota</option><option>Mississippi</option>
+            <option>Missouri</option><option>Montana</option><option>Nebraska</option><option>Nevada</option>
+            <option>New Hampshire</option><option>New Jersey</option><option>New Mexico</option><option>New York</option>
+            <option>North Carolina</option><option>North Dakota</option><option>Ohio</option><option>Oklahoma</option>
+            <option>Oregon</option><option>Pennsylvania</option><option>Rhode Island</option><option>South Carolina</option>
+            <option>South Dakota</option><option>Tennessee</option><option>Texas</option><option>Utah</option>
+            <option>Vermont</option><option>Virginia</option><option>Washington</option><option>West Virginia</option>
+            <option>Wisconsin</option><option>Wyoming</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="f-prior">Prior treatments tried <span style="color:var(--ink-3);font-weight:400">(optional but important)</span></label>
+        <input type="text" id="f-prior" placeholder="e.g. Methotrexate 25mg × 6mo — stopped due to…">
+        <div class="fhint">Strengthens the step therapy argument significantly</div>
+      </div>
+      <div class="field">
+        <label class="flabel" for="f-notes">Additional clinical notes <span style="color:var(--ink-3);font-weight:400">(optional)</span></label>
+        <textarea id="f-notes" rows="3" placeholder="Disease severity, DAS28 scores, comorbidities, reason for specific drug…"></textarea>
+      </div>
+
+      <div class="err" id="s2-err">Please fill in the required fields: drug name, diagnosis, and payer.</div>
+
+      <button class="btn-primary" id="gen-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+        Write appeal letter
+      </button>
+      <button class="btn-secondary" id="s2-back">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+        Back
+      </button>
+    </div>
+  </div>
+
+  <!-- GENERATING -->
+  <div id="s-gen" class="hidden">
+    <div class="gen-card">
+      <div class="spinner"></div>
+      <div class="gen-title">Writing your appeal letter…</div>
+      <div class="gen-sub">About 20–30 seconds.</div>
+      <div class="gen-steps">
+        <div class="gstep s-active" id="gs1"><svg class="si si-active ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Identifying denial type</div>
+        <div class="gstep" id="gs2"><svg class="si si-pending ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Applying payer criteria</div>
+        <div class="gstep" id="gs3"><svg class="si si-pending ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Citing ACR guidelines</div>
+        <div class="gstep" id="gs4"><svg class="si si-pending ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Drafting appeal letter</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="s-result" class="hidden">
+    <div class="result-card">
+      <div class="result-hdr">
+        <div class="d-row">
+          <span class="d-label">Denial type detected:</span>
+          <span class="dchip" id="dchip"><span class="cdot"></span><span id="dchip-label">Step therapy</span></span>
+        </div>
+        <div class="r-meta" id="r-meta"></div>
+      </div>
+      <div class="letter-out" id="letter-out"></div>
+      <div class="act-bar">
+        <button class="act-btn" id="btn-copy">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1"/></svg>
+          Copy text
+        </button>
+        <button class="act-btn" id="btn-dl">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg>
+          Word doc
+        </button>
+        <button class="act-btn act-go" id="btn-share">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="22 2 11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Send / Fax
+        </button>
+      </div>
+    </div>
+    <div class="start-over"><button id="btn-restart">Start a new appeal</button></div>
+  </div>
+
+</div><!-- /wrap -->
+
+<!-- Scenario Picker Modal -->
+<div class="modal-bg hidden" id="scenario-modal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">Choose a denial type to demo</div>
+    <div class="modal-sub">Each scenario shows how Pave identifies and responds to a different kind of denial — with the right clinical argument every time.</div>
+
+    <button class="scenario-card" onclick="selectScenarioSafe('step')">
+      <span class="sc-chip chip-step"><span class="cdot"></span>Step therapy</span>
+      <div class="sc-body">
+        <div class="sc-name">UnitedHealthcare — Rinvoq · Kentucky</div>
+        <div class="sc-detail">Denied: no documented DMARD trial on file. KY has aggressive step therapy enforcement — Pave cites the state protection statute.</div>
+      </div>
+    </button>
+
+    <button class="scenario-card" onclick="selectScenarioSafe('medical')">
+      <span class="sc-chip chip-med"><span class="cdot"></span>Medical necessity</span>
+      <div class="sc-body">
+        <div class="sc-name">Cigna — Humira · Texas</div>
+        <div class="sc-detail">Denied: treatment deemed not medically necessary. TX payers routinely challenge biologic necessity — Pave counters with ACR severity criteria.</div>
+      </div>
+    </button>
+
+    <button class="scenario-card" onclick="selectScenarioSafe('nonpref')">
+      <span class="sc-chip chip-np"><span class="cdot"></span>Non-preferred drug</span>
+      <div class="sc-body">
+        <div class="sc-name">BCBS — Skyrizi · Pennsylvania</div>
+        <div class="sc-detail">Denied: biosimilar substitution requested. PA's Highmark and BCBS routinely push biosimilar swaps — Pave argues clinical rationale for the branded agent.</div>
+      </div>
+    </button>
+
+    <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────────────
+// DYNAMIC DATES
+// ─────────────────────────────────────────────────────
+
+function formatDate(d) {
+  return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+}
+
+const TODAY        = new Date();
+const DENIAL_1     = new Date(TODAY); DENIAL_1.setDate(TODAY.getDate() - 5);
+const DENIAL_2     = new Date(TODAY); DENIAL_2.setDate(TODAY.getDate() - 7);
+const DENIAL_3     = new Date(TODAY); DENIAL_3.setDate(TODAY.getDate() - 9);
+
+const DATE_TODAY   = formatDate(TODAY);
+const DATE_DENIAL1 = formatDate(DENIAL_1);
+const DATE_DENIAL2 = formatDate(DENIAL_2);
+const DATE_DENIAL3 = formatDate(DENIAL_3);
+
+// ─────────────────────────────────────────────────────
+// SCENARIOS
+// ─────────────────────────────────────────────────────
+
+const SCENARIOS = {
+
+  step: {
+    chipClass: 'chip-step',
+    chipLabel: 'Step therapy',
+    denialText:
+`UnitedHealthcare Prior Authorization Department
+P.O. Box 30432, Salt Lake City, UT 84130
+Date: ${DATE_DENIAL1}
+
+RE: Notice of Adverse Benefit Determination -- Prior Authorization Denied
+
+Patient: Sarah Mitchell  |  Member ID: UHC8847291  |  DOB: 03/14/1978
+Provider: Riverside Rheumatology Associates  |  NPI: 1234567890
+
+Medication: Rinvoq (upadacitinib) 15mg oral tablet  |  Qty: 30 tabs / 30-day supply
+ICD-10: M05.79 -- Rheumatoid arthritis with rheumatoid factor, multiple sites
+HCPCS: J0717
+
+DENIAL REASON: Step Therapy Requirements Not Met
+
+Our clinical coverage guidelines require documentation that the member has tried and had an inadequate response to at least one conventional DMARD at a therapeutic dose and duration prior to initiating a biologic or JAK inhibitor. The submitted documentation does not include sufficient evidence of a completed step therapy trial.
+
+You have the right to appeal this determination within 60 days.
+Dr. James R. Holloway, MD -- Medical Director, UnitedHealthcare Clinical Review`,
+    fields: {
+      'f-drug':   'Rinvoq (upadacitinib) 15mg',
+      'f-dx':     'Rheumatoid arthritis — M05.79',
+      'f-icd':    'M05.79 / J0717',
+      'f-member': 'UHC8847291',
+      'f-prior':  'Methotrexate 20mg/week × 4 months (inadequate response + GI intolerance); Hydroxychloroquine 400mg/day × 6 months (inadequate response)',
+      'f-notes':  'DAS28-CRP 5.4 — moderate-to-high disease activity. Progressive joint erosion on hand X-rays.',
+    },
+    payer: 'UnitedHealthcare',
+    state: 'Kentucky',
+    letter:
+`${DATE_TODAY}
+
+UnitedHealthcare Appeals Department
+P.O. Box 30432, Salt Lake City, UT 84130
+
+RE: Formal Appeal -- Prior Authorization Denial
+Patient: [PATIENT NAME]  |  Member ID: UHC8847291
+Drug: Rinvoq (upadacitinib) 15mg  |  Diagnosis: Rheumatoid Arthritis (M05.79)
+
+Dear Medical Director,
+
+We write to formally appeal the denial of prior authorization for Rinvoq (upadacitinib) 15mg for our patient with confirmed moderate-to-severe Rheumatoid Arthritis (ICD-10: M05.79). The denial cites unmet step therapy requirements. The clinical record demonstrates otherwise -- this patient has completed the required DMARD trials and qualifies for biologic therapy under UnitedHealthcare's own criteria, ACR guidelines, and Kentucky state law.
+
+STEP THERAPY IS SATISFIED
+
+The clinical record documents two prior DMARD trials at therapeutic dose:
+
+1. Methotrexate (MTX) 20mg/week x 4 months -- discontinued: inadequate response (DAS28-CRP persistent at 5.4) and GI intolerance preventing dose escalation.
+2. Hydroxychloroquine 400mg/day x 6 months -- discontinued: no clinically meaningful improvement in disease activity scores.
+
+Both trials meet the duration and dose thresholds required by UnitedHealthcare's Specialty Drug Coverage Policy for JAK inhibitors and biologics. The 2021 ACR Guidelines for the Treatment of Rheumatoid Arthritis support biologic initiation following failure of two conventional DMARDs in patients with moderate-to-severe disease.
+
+KENTUCKY STEP THERAPY PROTECTIONS APPLY
+
+Kentucky enacted step therapy reform legislation (KRS 304.17A-164) requiring insurers to grant a step therapy exception when a patient has previously tried and failed the required medications. This patient has done so. Continued denial on step therapy grounds after documented DMARD failure is not consistent with Kentucky law.
+
+CLINICAL URGENCY
+
+Disease activity scores (DAS28-CRP: 5.4) and progressive erosive changes on hand radiographs indicate high risk of irreversible joint damage without timely biologic intervention. Delay in approval poses direct clinical harm.
+
+REQUEST
+
+We respectfully request expedited review and approval of this prior authorization. Please contact our office at [PHONE] with any questions or to request additional documentation.
+
+Sincerely,
+[PHYSICIAN NAME], MD
+[PRACTICE NAME]  |  NPI: [NPI]  |  [PHONE]`
+  },
+
+  medical: {
+    chipClass: 'chip-med',
+    chipLabel: 'Medical necessity',
+    denialText:
+`Cigna Healthcare Prior Authorization Department
+P.O. Box 188004, Chattanooga, TN 37422
+Date: ${DATE_DENIAL2}
+
+RE: Adverse Coverage Decision -- Medical Necessity Not Established
+
+Patient: Robert Garza  |  Member ID: CIG4492017  |  DOB: 07/22/1965
+Provider: Lone Star Rheumatology Group, Dallas TX  |  NPI: 9876543210
+
+Medication: Humira (adalimumab) 40mg/0.4mL injection  |  Qty: 2 pens / 28-day supply
+ICD-10: M07.3 -- Psoriatic arthritis, unspecified
+CPT: 96401 / J0135
+
+DENIAL REASON: Medical Necessity Not Established
+
+Following review by our Medical Management team, Cigna has determined that the clinical information submitted does not establish medical necessity for Humira (adalimumab) for the diagnosis of Psoriatic Arthritis at this time.
+
+Specifically, the submitted records do not include: (1) documentation of moderate-to-severe disease activity as defined by Cigna coverage criteria; (2) radiographic evidence of structural damage; or (3) adequate documentation that NSAIDs and conventional DMARDs have been optimized prior to biologic initiation.
+
+This decision was made in accordance with Cigna's Coverage Policy: Biologic Agents for Inflammatory Conditions (MED-345).
+
+You may submit a formal appeal within 180 days of this notice.
+Dr. Patricia Wens, MD -- Cigna Medical Director, South-Central Region`,
+    fields: {
+      'f-drug':   'Humira (adalimumab) 40mg/0.4mL',
+      'f-dx':     'Psoriatic arthritis — M07.3',
+      'f-icd':    'M07.3 / J0135',
+      'f-member': 'CIG4492017',
+      'f-prior':  'Naproxen 500mg BID × 3 months (inadequate response); Methotrexate 15mg/week × 5 months (partial response, persistent active disease); Sulfasalazine 2g/day × 4 months (inadequate response)',
+      'f-notes':  'DAPSA score 32 (high disease activity). 14 tender joints, 11 swollen joints at last visit. Bilateral sacroiliitis on MRI. Nail involvement (pitting, onycholysis). CRP 18 mg/L.',
+    },
+    payer: 'Cigna',
+    state: 'Texas',
+    letter:
+`${DATE_TODAY}
+
+Cigna Healthcare Appeals Department
+P.O. Box 188004, Chattanooga, TN 37422
+
+RE: Formal Appeal -- Medical Necessity Denial
+Patient: [PATIENT NAME]  |  Member ID: CIG4492017
+Drug: Humira (adalimumab) 40mg  |  Diagnosis: Psoriatic Arthritis (M07.3)
+
+Dear Medical Director,
+
+We appeal the denial of prior authorization for Humira (adalimumab) for our patient with active Psoriatic Arthritis (ICD-10: M07.3). Cigna's determination that medical necessity has not been established is inconsistent with the clinical record, ACR treatment guidelines, and Cigna's own coverage criteria for biologic therapy in inflammatory arthritis.
+
+MEDICAL NECESSITY IS CLEARLY ESTABLISHED
+
+This patient presents with high-disease-activity Psoriatic Arthritis as evidenced by:
+
+-- DAPSA score of 32, indicating high disease activity (threshold for biologic consideration: DAPSA > 14)
+-- 14 tender joints and 11 swollen joints at most recent examination
+-- Bilateral sacroiliitis confirmed on MRI, indicating axial involvement
+-- Nail disease (pitting and onycholysis), a marker of more aggressive PsA phenotype
+-- Elevated CRP at 18 mg/L, indicating active systemic inflammation
+
+These findings satisfy Cigna's Coverage Policy MED-345 criterion for "moderate-to-severe Psoriatic Arthritis" and the 2018 ACR/NPF Guideline for the Treatment of Psoriatic Arthritis, which recommends TNF inhibitor therapy for patients with active PsA and inadequate response to conventional DMARDs.
+
+PRIOR DMARD OPTIMIZATION IS DOCUMENTED
+
+Contrary to the denial rationale, the clinical record documents three prior treatment trials:
+
+1. Naproxen 500mg BID x 3 months -- discontinued: inadequate response, persistent joint inflammation.
+2. Methotrexate 15mg/week x 5 months -- partial response only; DAPSA remained elevated at 28.
+3. Sulfasalazine 2g/day x 4 months -- discontinued: inadequate clinical response.
+
+The patient has failed NSAIDs and two conventional DMARDs, meeting the threshold for biologic initiation under both ACR guidelines and Cigna's published criteria.
+
+TEXAS REGULATORY CONTEXT
+
+Texas Insurance Code S. 1369.0546 requires health plans to grant step therapy exceptions when patients have tried and failed required prior therapies. The clinical record satisfies this requirement. Further delay in biologic therapy risks progressive joint destruction that is not reversible.
+
+REQUEST
+
+We request immediate approval of this prior authorization. The clinical evidence is unambiguous. Please contact our office at [PHONE] with any questions.
+
+Sincerely,
+[PHYSICIAN NAME], MD
+[PRACTICE NAME]  |  NPI: [NPI]  |  [PHONE]`
+  },
+
+  nonpref: {
+    chipClass: 'chip-np',
+    chipLabel: 'Non-preferred drug',
+    denialText:
+`Highmark Blue Cross Blue Shield of Pennsylvania
+Prior Authorization & Specialty Pharmacy Review
+P.O. Box 890, Camp Hill, PA 17001
+Date: ${DATE_DENIAL3}
+
+RE: Prior Authorization Denial -- Non-Formulary / Non-Preferred Agent
+
+Patient: Linda Kowalski  |  Member ID: HM7732904  |  DOB: 11/03/1971
+Provider: Penn Rheumatology Associates, Philadelphia PA  |  NPI: 1122334455
+
+Medication Requested: Skyrizi (risankizumab-rzaa) 150mg/mL injection
+ICD-10: L40.5 -- Psoriatic arthropathy
+CPT: 96401 / J3490
+
+DENIAL REASON: Non-Preferred Agent -- Biosimilar Available
+
+Skyrizi (risankizumab) is not a preferred agent on the Highmark BCBS Specialty Tier formulary for the treatment of Psoriatic Arthritis. A clinically equivalent biosimilar or preferred IL-17/IL-23 inhibitor is available and should be tried first. Specifically, Highmark requires a trial of a preferred formulary TNF inhibitor biosimilar (adalimumab-atto [Hadlima] or etanercept-ykro [Eticovo]) prior to approving a non-preferred IL-23 inhibitor.
+
+No clinical documentation has been submitted demonstrating that the preferred agents are contraindicated or clinically inappropriate for this patient.
+
+Appeals must be filed within 60 days. Include a physician attestation letter.
+Dr. Alison Freed, PharmD -- Pharmacy Medical Director, Highmark BCBS PA`,
+    fields: {
+      'f-drug':   'Skyrizi (risankizumab) 150mg/mL',
+      'f-dx':     'Psoriatic arthropathy — L40.5',
+      'f-icd':    'L40.5 / J3490',
+      'f-member': 'HM7732904',
+      'f-prior':  'Hadlima (adalimumab-atto) 40mg × 5 months — discontinued: inadequate response, persistent active PsA and worsening skin involvement; Eticovo (etanercept-ykro) 50mg/week × 4 months — discontinued: injection site reactions and lack of efficacy',
+      'f-notes':  'Prior TNF inhibitor biosimilar failures documented. IL-23 mechanism specifically indicated for this patient\'s predominant skin and nail phenotype. Dermatologist co-managing care concurs with Skyrizi selection. PASI score 18 (severe plaque psoriasis component).',
+    },
+    payer: 'BCBS',
+    state: 'Pennsylvania',
+    letter:
+`${DATE_TODAY}
+
+Highmark Blue Cross Blue Shield of Pennsylvania
+Prior Authorization Appeals -- Specialty Pharmacy
+P.O. Box 890, Camp Hill, PA 17001
+
+RE: Formal Appeal -- Non-Preferred Agent Denial
+Patient: [PATIENT NAME]  |  Member ID: HM7732904
+Drug: Skyrizi (risankizumab) 150mg  |  Diagnosis: Psoriatic Arthropathy (L40.5)
+
+Dear Medical Director,
+
+We appeal the denial of prior authorization for Skyrizi (risankizumab) for our patient with active Psoriatic Arthropathy and severe plaque psoriasis (ICD-10: L40.5). Highmark BCBS denied the request citing availability of preferred biosimilar TNF inhibitors. The clinical record demonstrates that this patient has already tried and failed both preferred biosimilar agents, and that the IL-23 mechanism of risankizumab is specifically indicated for this patient's disease phenotype.
+
+PREFERRED BIOSIMILAR AGENTS HAVE BEEN TRIED AND FAILED
+
+Contrary to the denial rationale, this patient has completed trials of both preferred formulary biosimilar agents:
+
+1. Hadlima (adalimumab-atto) 40mg every other week x 5 months -- discontinued: inadequate clinical response. Persistent active psoriatic arthritis with worsening skin and nail involvement. Joint count remained elevated (8 tender, 6 swollen) at trial endpoint.
+
+2. Eticovo (etanercept-ykro) 50mg/week x 4 months -- discontinued: clinically significant injection site reactions and lack of efficacy. No meaningful improvement in PASI score or joint disease activity.
+
+The patient has satisfied the step requirement Highmark's formulary policy imposes before approving a non-preferred IL-23 inhibitor. There are no preferred formulary agents remaining that have not been tried.
+
+CLINICAL RATIONALE FOR RISANKIZUMAB SPECIFICALLY
+
+Skyrizi is an IL-23 inhibitor with a distinct mechanism of action from the TNF inhibitors the patient has failed. The 2018 ACR/NPF Guideline for Psoriatic Arthritis explicitly recommends IL-17 or IL-23 inhibitors after TNF inhibitor failure, particularly in patients with prominent skin involvement. This patient's PASI score of 18 indicates severe plaque psoriasis -- a phenotype for which IL-23 inhibition has demonstrated superior efficacy over TNF inhibition in head-to-head data (IMMerge trial, NEJM 2021).
+
+Our co-managing dermatologist concurs with the selection of risankizumab given the skin and nail phenotype. Substituting a second biosimilar TNF inhibitor after two TNF failures would not be evidence-based and would further delay appropriate treatment.
+
+PENNSYLVANIA FORMULARY EXCEPTION RIGHTS
+
+Pennsylvania Act 106 (40 P.S. S. 764h) provides patients the right to a formulary exception when a preferred agent is contraindicated or has been tried and failed. Both preferred agents have been tried and failed. This patient meets the statutory criteria for a formulary exception as a matter of law.
+
+REQUEST
+
+We respectfully request approval of Skyrizi (risankizumab) 150mg. The clinical justification is well-documented, the mechanism is appropriate, and the preferred alternatives have been exhausted. Please contact our office at [PHONE] with any questions.
+
+Sincerely,
+[PHYSICIAN NAME], MD
+[PRACTICE NAME]  |  NPI: [NPI]  |  [PHONE]`
+  }
+};
+
+// ─────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────
+let selectedScenario = null;
+let hasFile = false;
+let generatedLetter = '';
+
+function qs(id) { return document.getElementById(id); }
+
+function showToast(msg) {
+  const t = qs('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ─────────────────────────────────────────────────────
+// MODAL
+// ─────────────────────────────────────────────────────
+let modalOpenTime = 0;
+let lastScenarioTouchTime = 0;
+
+function openModal() {
+  qs('scenario-modal').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  modalOpenTime = Date.now();
+  lastScenarioTouchTime = 0;
+}
+function closeModal() {
+  qs('scenario-modal').classList.add('hidden');
+  document.body.style.overflow = '';
+  modalOpenTime = 0;
+  pasteModalOpened = false;
+}
+
+function selectScenarioSafe(key) {
+  // Allow selection only if:
+  // 1. This click is MORE THAN 400ms after the modal opened (allows time to see options)
+  // 2. OR it's a fresh touch that started AFTER the modal opened
+  const timeSinceOpen = Date.now() - modalOpenTime;
+  if (timeSinceOpen < 400 && lastScenarioTouchTime === 0) return;
+  selectScenario(key);
+}
+
+// Track when scenario cards are touched so we know it's a fresh interaction
+document.addEventListener('touchstart', function(e) {
+  if (e.target.closest('.scenario-card')) {
+    lastScenarioTouchTime = Date.now();
+  }
+}, { passive: true });
+
+// Paste zone — touchstart fires immediately on mobile before anything can block it
+let pasteModalOpened = false;
+function openPasteModal() {
+  if (qs('paste-zone').classList.contains('filled')) return;
+  pasteModalOpened = true;
+  openModal();
+}
+qs('paste-text').addEventListener('touchstart', function(e) {
+  openPasteModal();
+}, { passive: true });
+qs('paste-text').addEventListener('click', function(e) {
+  if (!pasteModalOpened) openPasteModal();
+  pasteModalOpened = false;
+});
+qs('paste-zone').addEventListener('touchstart', function(e) {
+  openPasteModal();
+}, { passive: true });
+qs('paste-zone').addEventListener('click', function(e) {
+  if (e.target !== qs('paste-text') && !pasteModalOpened) openPasteModal();
+  pasteModalOpened = false;
+});
+
+// Upload zone — intercept to show modal (file input click passes through)
+qs('upload-zone-click').addEventListener('click', function(e) {
+  if (e.target === qs('file-in')) return;
+  e.preventDefault();
+  openModal();
+});
+
+// Close modal on backdrop click
+qs('scenario-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+function selectScenario(key) {
+  selectedScenario = key;
+  const s = SCENARIOS[key];
+
+  // Populate paste box
+  const pt = qs('paste-text');
+  pt.value = s.denialText;
+  pt.readOnly = false;
+  qs('paste-zone').classList.add('filled');
+  qs('paste-zone').classList.add('active');
+
+  closeModal();
+}
+
+// ─────────────────────────────────────────────────────
+// FILE INPUT (still works for real uploads)
+// ─────────────────────────────────────────────────────
+qs('file-in').addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  hasFile = true;
+  qs('fname').textContent = file.name;
+  qs('uz-wrap').classList.add('hidden');
+  qs('fpill-wrap').classList.remove('hidden');
+});
+
+qs('fremove').addEventListener('click', () => {
+  qs('file-in').value = '';
+  hasFile = false;
+  qs('uz-wrap').classList.remove('hidden');
+  qs('fpill-wrap').classList.add('hidden');
+});
+
+// ─────────────────────────────────────────────────────
+// STEP NAV
+// ─────────────────────────────────────────────────────
+function setStep(n) {
+  ['s1','s2','s-gen','s-result'].forEach(id => qs(id).classList.add('hidden'));
+  qs({1:'s1',2:'s2',3:'s-gen',4:'s-result'}[n]).classList.remove('hidden');
+  updateProg(n);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProg(step) {
+  const check = '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+  [1,2,3].forEach(i => {
+    const pc = qs('pc'+i), pl = qs('pl'+i), eff = step > 2 ? 3 : step;
+    if (i < eff)      { pc.className='pc done';   pc.innerHTML=check; pl.className='pl done'; }
+    else if (i===eff) { pc.className='pc active'; pc.textContent=i;   pl.className='pl active'; }
+    else              { pc.className='pc';         pc.textContent=i;   pl.className='pl'; }
+  });
+  [1,2].forEach(i => { qs('pline'+i).className='pline'+(step>i?' done':''); });
+}
+
+// ─────────────────────────────────────────────────────
+// FILL STEP 2
+// ─────────────────────────────────────────────────────
+function fillFields(scenario) {
+  const s = SCENARIOS[scenario];
+  Object.entries(s.fields).forEach(([id, val]) => {
+    const el = qs(id);
+    if (el.tagName === 'TEXTAREA') { el.value = val; }
+    else { el.value = val; }
+    el.classList.add('autofilled');
+  });
+  // Payer
+  const payerSel = qs('f-payer');
+  payerSel.value = s.payer;
+  payerSel.classList.add('autofilled');
+  // State
+  const stateSel = qs('f-state');
+  stateSel.value = s.state;
+  stateSel.classList.add('autofilled');
+
+  qs('autofill-banner').classList.remove('hidden');
+}
+
+function clearFields() {
+  ['f-drug','f-dx','f-icd','f-member','f-prior','f-notes'].forEach(id => {
+    const el = qs(id); el.value=''; el.classList.remove('autofilled');
+  });
+  ['f-payer','f-state'].forEach(id => {
+    const el = qs(id); el.value=''; el.classList.remove('autofilled');
+  });
+  qs('autofill-banner').classList.add('hidden');
+}
+
+// ─────────────────────────────────────────────────────
+// CONTINUE
+// ─────────────────────────────────────────────────────
+qs('s1-next').addEventListener('click', () => {
+  const pastedText = qs('paste-text').value.trim();
+  const err = qs('s1-err');
+  if (!hasFile && !pastedText) { err.style.display='block'; return; }
+  err.style.display = 'none';
+
+  if (hasFile) {
+    qs('s2-fname').textContent = qs('fname').textContent;
+    qs('s2-fpill').classList.remove('hidden');
+  }
+
+  const btn = qs('s1-next');
+  btn.disabled = true;
+  btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Reading letter…';
+  qs('extracting-wrap').classList.remove('hidden');
+  qs('extracting-msg').textContent = 'Reading letter…';
+
+  setTimeout(() => {
+    qs('extracting-msg').textContent = 'Parsing denial details…';
+    setTimeout(() => {
+      if (selectedScenario) fillFields(selectedScenario);
+      btn.disabled = false;
+      btn.innerHTML = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg> Continue';
+      qs('extracting-wrap').classList.add('hidden');
+      setStep(2);
+    }, 1000);
+  }, 800);
+});
+
+qs('s2-back').addEventListener('click', () => {
+  clearFields();
+  setStep(1);
+});
+
+// ─────────────────────────────────────────────────────
+// GENERATE
+// ─────────────────────────────────────────────────────
+qs('gen-btn').addEventListener('click', () => {
+  const drug  = qs('f-drug').value.trim();
+  const dx    = qs('f-dx').value.trim();
+  const payer = qs('f-payer').value;
+  const err   = qs('s2-err');
+  if (!drug || !dx || !payer) { err.style.display='block'; return; }
+  err.style.display = 'none';
+  setStep(3);
+
+  const doneIco   = '<svg class="si si-done ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+  const activeIco = '<svg class="si si-active ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>';
+  ['gs1','gs2','gs3','gs4'].forEach((id,i) => {
+    setTimeout(() => {
+      if (i > 0) {
+        const prev = qs('gs'+i);
+        if (prev) { prev.className='gstep s-done'; prev.innerHTML=doneIco+' '+prev.textContent.trim(); }
+      }
+      const el = qs(id);
+      if (el) { el.className='gstep s-active'; el.innerHTML=activeIco+' '+el.textContent.trim(); }
+    }, i * 800);
+  });
+
+  setTimeout(() => {
+    const s = selectedScenario ? SCENARIOS[selectedScenario] : null;
+    generatedLetter = s ? s.letter : '';
+
+    const chip = qs('dchip');
+    qs('dchip-label').textContent = s ? s.chipLabel : 'Unknown';
+    chip.className = 'dchip ' + (s ? s.chipClass : 'chip-step');
+
+    const icd = qs('f-icd').value.trim();
+    const parts = ['<strong>'+drug+'</strong>', payer, dx];
+    if (icd) parts.push(icd);
+    qs('r-meta').innerHTML = parts.join(' · ');
+    qs('letter-out').textContent = generatedLetter;
+    setStep(4);
+  }, 3600);
+});
+
+// ─────────────────────────────────────────────────────
+// ACTIONS
+// ─────────────────────────────────────────────────────
+qs('btn-copy').addEventListener('click', () => {
+  if (!generatedLetter) return;
+  navigator.clipboard.writeText(generatedLetter).then(() => showToast('Copied to clipboard'));
+});
+
+qs('btn-dl').addEventListener('click', async () => {
+  if (!generatedLetter) return;
+  const btn = qs('btn-dl');
+  btn.disabled = true;
+  btn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:15px;height:15px;animation:spin .8s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Building…';
+
+  try {
+    // Build a proper .docx from scratch using Open XML
+    // No CDN dependency — pure JS zip + XML construction via JSZip
+    const drug  = qs('f-drug').value.trim();
+    const payer = qs('f-payer').value.trim();
+    const dx    = qs('f-dx').value.trim();
+    const state = qs('f-state').value.trim();
+    const icd   = qs('f-icd').value.trim();
+
+    // Meaningful filename: appeal-[payer]-[drug-short]-[state].docx
+    const payerSlug = payer.replace(/[^a-zA-Z0-9]/g,'-').replace(/-+/g,'-').toLowerCase().slice(0,12);
+    const drugSlug  = drug.replace(/[^a-zA-Z0-9]/g,'-').replace(/-+/g,'-').toLowerCase().split('-').slice(0,2).join('-');
+    const stateSlug = state ? '-' + state.replace(/\s+/g,'-').toLowerCase() : '';
+    const filename  = `pave-appeal-${payerSlug}-${drugSlug}${stateSlug}.docx`;
+
+    // Build XML paragraphs from letter text
+    const lines = generatedLetter.split('\n');
+
+    function escXml(s) {
+      return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    function makePara(text, opts = {}) {
+      const {bold=false, size=22, color='000000', spaceBefore=0, spaceAfter=120, indent=0, align='left'} = opts;
+      const rpr = `<w:rPr>${bold?'<w:b/>':''}<w:sz w:val="${size}"/><w:szCs w:val="${size}"/>${color!=='000000'?`<w:color w:val="${color}"/>`:''}${bold?'<w:bCs//>':''}</w:rPr>`;
+      const ppr = `<w:pPr>${align==='right'?'<w:jc w:val="right"/>':`<w:jc w:val="left"/>`}<w:spacing w:before="${spaceBefore}" w:after="${spaceAfter}"/>${indent?`<w:ind w:left="${indent}"/>`:''}${opts.border?`<w:pBdr><w:bottom w:val="single" w:sz="4" w:space="1" w:color="C4C0F0"/></w:pBdr>`:''}${bold?'<w:rPr><w:b/></w:rPr>':''}</w:pPr>`;
+      if (!text.trim()) return `<w:p><w:pPr><w:spacing w:before="0" w:after="80"/></w:pPr></w:p>`;
+      return `<w:p>${ppr}<w:r>${rpr}<w:t xml:space="preserve">${escXml(text)}</w:t></w:r></w:p>`;
+    }
+
+    let paras = '';
+    lines.forEach((line, i) => {
+      const t = line.trim();
+      if (!t) { paras += makePara('', {spaceAfter:80}); return; }
+      if (i === 0) {
+        // Date — right aligned
+        paras += makePara(t, {align:'right', size:20, spaceAfter:200});
+      } else if (t === t.toUpperCase() && t.length > 6 && !t.startsWith('RE:') && !t.startsWith('NPI') && !t.startsWith('P.O')) {
+        // Section headers
+        paras += makePara(t, {bold:true, color:'3D3799', spaceBefore:280, spaceAfter:100, border:true});
+      } else if (t.startsWith('RE:')) {
+        paras += makePara(t, {bold:true, spaceBefore:160, spaceAfter:100});
+      } else if (t.startsWith('Dear ') || t.startsWith('Sincerely')) {
+        paras += makePara(t, {spaceBefore:200, spaceAfter:100});
+      } else if (/^[1-9]\.|^—/.test(t)) {
+        paras += makePara(t, {indent:480, spaceAfter:100});
+      } else {
+        paras += makePara(t, {spaceAfter:120});
+      }
+    });
+
+    // Footer
+    paras += makePara('', {spaceAfter:200});
+    paras += `<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="200" w:after="0"/></w:pPr><w:r><w:rPr><w:i/><w:sz w:val="16"/><w:szCs w:val="16"/><w:color w:val="A1A1AA"/></w:rPr><w:t>Generated by Pave . pave.health . Clear the path to care</w:t></w:r></w:p>`;
+
+    const documentXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:document xmlns:wpc="http://schemas.microsoft.com/office/word/2010/wordprocessingCanvas"
+  xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"
+  xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<w:body>
+${paras}
+<w:sectPr>
+  <w:pgMar w:top="1080" w:right="1080" w:bottom="1080" w:left="1080" w:header="708" w:footer="708" w:gutter="0"/>
+</w:sectPr>
+</w:body>
+</w:document>`;
+
+    const relsXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`;
+
+    const stylesXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+  <w:docDefaults>
+    <w:rPrDefault><w:rPr>
+      <w:rFonts w:ascii="Calibri" w:hAnsi="Calibri" w:cs="Calibri"/>
+      <w:sz w:val="22"/><w:szCs w:val="22"/>
+    </w:rPr></w:rPrDefault>
+  </w:docDefaults>
+</w:styles>`;
+
+    const appXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties">
+  <Application>Pave</Application>
+  <Company>Pave Health</Company>
+</Properties>`;
+
+    const contentTypes = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+  <Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+  <Default Extension="xml" ContentType="application/xml"/>
+  <Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>
+  <Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>
+  <Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>
+</Types>`;
+
+    const rootRels = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>
+  <Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/>
+  <Relationship Id="rId3" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/extended-properties" Target="docProps/app.xml"/>
+</Relationships>`;
+
+    const coreXml = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties"
+  xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <dc:title>PA Appeal Letter</dc:title>
+  <dc:creator>Pave</dc:creator>
+</cp:coreProperties>`;
+
+    // Use JSZip (available via CDN) to build the .docx zip
+    const JSZip = (await import('https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js')).default
+      || window.JSZip;
+
+    // Fallback: load via script tag if dynamic import fails
+    let zip;
+    if (typeof JSZip !== 'undefined') {
+      zip = new JSZip();
+    } else {
+      await new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+      zip = new window.JSZip();
+    }
+
+    zip.file('[Content_Types].xml', contentTypes);
+    zip.file('_rels/.rels', rootRels);
+    zip.file('word/document.xml', documentXml);
+    zip.file('word/styles.xml', stylesXml);
+    zip.file('word/_rels/document.xml.rels', relsXml);
+    zip.file('docProps/app.xml', appXml);
+    zip.file('docProps/core.xml', coreXml);
+
+    const blob = await zip.generateAsync({
+      type: 'blob',
+      mimeType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      compression: 'DEFLATE',
+      compressionOptions: { level: 6 }
+    });
+
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Word doc downloaded ✓');
+
+  } catch(err) {
+    console.error('docx build error:', err);
+    // Graceful fallback to plain text with good filename
+    const drug  = qs('f-drug').value.trim();
+    const payer = qs('f-payer').value.trim();
+    const state = qs('f-state').value.trim();
+    const payerSlug = payer.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase().slice(0,12);
+    const drugSlug  = drug.replace(/[^a-zA-Z0-9]/g,'-').toLowerCase().split('-').slice(0,2).join('-');
+    const stateSlug = state ? '-' + state.replace(/\s+/g,'-').toLowerCase() : '';
+    const blob = new Blob([generatedLetter], {type:'text/plain'});
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href = url; a.download = `pave-appeal-${payerSlug}-${drugSlug}${stateSlug}.txt`; a.click();
+    URL.revokeObjectURL(url);
+    showToast('Downloaded as text');
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="width:15px;height:15px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><polyline points="9 15 12 18 15 15"/></svg> Word doc`;
+  }
+});
+
+qs('btn-share').addEventListener('click', () => {
+  if (!generatedLetter) return;
+
+  const drug  = qs('f-drug').value.trim();
+  const payer = qs('f-payer').value.trim();
+  const dx    = qs('f-dx').value.trim();
+  const state = qs('f-state').value.trim();
+
+  const subject = `PA Appeal -- ${drug} -- ${payer}${state ? ' (' + state + ')' : ''}`;
+
+  // Mobile: native share sheet (works great — hands off to email, fax apps, Outlook, Teams)
+  if (navigator.share) {
+    navigator.share({
+      title: subject,
+      text: generatedLetter
+    }).catch(() => {});
+    return;
+  }
+
+  // Desktop: open mailto with pre-filled subject + body
+  // Billing coordinator can forward to physician for signature or send to fax service
+  const mailtoUrl = 'mailto:?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(generatedLetter);
+  const a = document.createElement('a');
+  a.href = mailtoUrl;
+  a.click();
+  showToast('Opening email — or copy text to paste into fax portal');
+});
+
+qs('btn-restart').addEventListener('click', () => {
+  clearFields();
+  selectedScenario = null; hasFile = false; generatedLetter = '';
+  const pt = qs('paste-text');
+  pt.value = ''; pt.readOnly = true;
+  qs('paste-zone').classList.remove('filled','active');
+  qs('file-in').value = '';
+  qs('uz-wrap').classList.remove('hidden');
+  qs('fpill-wrap').classList.add('hidden');
+  qs('extracting-wrap').classList.add('hidden');
+  qs('s2-fpill').classList.add('hidden');
+  setStep(1);
+});
+</script>
+</body>
+</html>
